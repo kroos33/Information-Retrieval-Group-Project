@@ -1,0 +1,9 @@
+This is the start of the Thesaurus Builder/Navigator.  The architecture is a simple Inverted Index implementation that stores for any given concept, related concepts and how they are related.
+
+UI is still up in the air as is how the QP and this will interface.  JMS would be easy as would web services although the latter could be slower.
+
+Persistence is accomplished through normal Java serialization just in case we want to save our index once it is built and have a back-up.
+
+mutest is a persisted version of the spec example TBN.
+
+
