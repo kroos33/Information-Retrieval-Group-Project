@@ -54,6 +54,20 @@ public class InvertedIndexList extends java.util.HashSet<InvertedIndexItem> {
 		return super.remove(arg0);
 	}
 	
+	public void replaceConcept(Concept c1, Concept c2)
+	{
+		Iterator items = this.iterator();
+		while(items.hasNext())
+		{
+			InvertedIndexItem curr = (InvertedIndexItem)items.next();
+			
+			if(curr.getConcept().getConcept().equals(c1.getConcept()))
+			{
+				curr.getConcept().setConcept(c2.getConcept());
+			}
+		}
+	}
+	
 	
 
 }

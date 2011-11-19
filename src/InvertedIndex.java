@@ -43,6 +43,36 @@ public class InvertedIndex {
 			table.put(c.getConcept(), new InvertedIndexList());
 	}
 	
+	public synchronized void updateConcept(Concept old_concept, Concept new_concept)
+	{
+		String word = old_concept.getConcept();
+		InvertedIndexItem any_relation = new InvertedIndexItem(old_concept, Relationship.ANY);
+		InvertedIndexList entry = null;
+		Enumeration entries = table.keys();
+		String temp_element = null;
+		while(entries.hasMoreElements())
+		{
+			temp_element = (String)entries.nextElement();
+			if(temp_element.equals(word))
+			{
+				InvertedIndexList to_move = (InvertedIndexList)table.get(word);
+				table.remove(word);
+				table.put(new_concept.getConcept(), to_move);
+			}
+			else
+			{
+				entry = (InvertedIndexList)table.get(temp_element);
+				if(entry != null)
+				{
+					if(entry.contains(any_relation))
+					{
+						entry.replaceConcept(old_concept, new_concept);
+					}
+				}
+			}
+		}
+	}
+	
 	/* Add a InvertedIndxItem to our list of documents for Concept c */
 	public synchronized void addItem(Concept c, InvertedIndexItem i)
 	{
@@ -67,11 +97,12 @@ public class InvertedIndex {
 		return (InvertedIndexList)table.get(c.getConcept());
 	}
 	
+	
+	
 	/* This is kind of ugly but in the real world, we assume deletions to be minimal.  Also, real pointers would help */
 	public synchronized void removeConcept(Concept c)
 	{
 		String word = c.getConcept();
-		
 		InvertedIndexItem any_relation = new InvertedIndexItem(c, Relationship.ANY);
 		InvertedIndexList entry = null;
 		Enumeration entries = table.keys();

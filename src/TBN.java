@@ -48,6 +48,7 @@ public class TBN {
 	private JButton btnNewButton_1;
 	public DefaultMutableTreeNode top;
 	public DefaultTreeModel treeModel;
+	public DefaultMutableTreeNode selected;
 
 	/**
 	 * Launch the application.
@@ -206,6 +207,20 @@ public class TBN {
 		btnNewButton_1.setHorizontalAlignment(SwingConstants.LEFT);
 		panel1.add(btnNewButton_1);
 		
+		btnNewButton_1.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent arg0) {
+				if(selected.getUserObject().toString().equals("Add New Term"))
+				{
+					i.addConcept(new Concept(textField.getText()));
+				}
+				else
+				{
+					i.updateConcept(new Concept(selected.getUserObject().toString()), new Concept(textField.getText()));
+				}
+				RenderTree();
+			}
+		});
+		
 		btnNewButton = new JButton("Delete");
 		btnNewButton.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
@@ -227,6 +242,7 @@ public class TBN {
 		    public void valueChanged(TreeSelectionEvent e) {
 		        DefaultMutableTreeNode node = (DefaultMutableTreeNode)
 		                           tree.getLastSelectedPathComponent();
+		        selected = node;
 
 		    /* if nothing is selected */ 
 		        if (node == null) return;
