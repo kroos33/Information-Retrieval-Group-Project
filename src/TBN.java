@@ -12,6 +12,7 @@ import java.util.Iterator;
 
 import javax.swing.tree.DefaultTreeModel;
 import javax.swing.tree.DefaultMutableTreeNode;
+import javax.swing.tree.TreeModel;
 import javax.swing.tree.TreeSelectionModel;
 import javax.swing.JComponent;
 import javax.swing.JPanel;
@@ -21,9 +22,16 @@ import javax.swing.JTextArea;
 import javax.swing.JTextPane;
 import javax.swing.SwingConstants;
 import javax.swing.border.EtchedBorder;
+import javax.swing.event.TreeModelEvent;
+import javax.swing.event.TreeModelListener;
 import javax.swing.event.TreeSelectionEvent;
 import javax.swing.event.TreeSelectionListener;
 import java.awt.CardLayout;
+import javax.swing.JTextField;
+import java.awt.FlowLayout;
+import javax.swing.JButton;
+import java.awt.event.ActionListener;
+import java.awt.event.ActionEvent;
 
 
 public class TBN {
@@ -34,6 +42,12 @@ public class TBN {
 	private JComponent panel1;
 	private JComponent panel2;
 	private JPanel panel;
+	private JTextField textField;
+	private JSeparator separator_1;
+	private JButton btnNewButton;
+	private JButton btnNewButton_1;
+	public DefaultMutableTreeNode top;
+	public DefaultTreeModel treeModel;
 
 	/**
 	 * Launch the application.
@@ -62,6 +76,37 @@ public class TBN {
 	public TBN() {
 		initialize();
 	}
+	
+	public void RenderTree()
+	{
+		top.removeAllChildren();
+		java.util.Hashtable<String, HashSet<InvertedIndexItem>> table = i.getIndex();
+		if(table != null)
+		{
+			java.util.Set  entry = null;
+			Enumeration entries = table.keys();
+			String temp_element = null;
+			while(entries.hasMoreElements())
+			{
+				temp_element = (String)entries.nextElement();
+				DefaultMutableTreeNode temp = new DefaultMutableTreeNode(temp_element);
+				top.add(temp);
+				entry = (java.util.Set)table.get(temp_element);
+				Iterator i = entry.iterator();
+				while(i.hasNext())
+				{
+					DefaultMutableTreeNode relationsihp = new DefaultMutableTreeNode(i.next());
+					temp.add(relationsihp);
+				}
+				DefaultMutableTreeNode newrelationship = new DefaultMutableTreeNode("Add New Relationship");
+				temp.add(newrelationship);
+			}
+			
+		}
+		DefaultMutableTreeNode newterm = new DefaultMutableTreeNode("Add New Term");
+		top.add(newterm);
+		treeModel.reload();
+	}
 
 	/**
 	 * Initialize the contents of the frame.
@@ -83,7 +128,7 @@ public class TBN {
 			e.printStackTrace();
 		}
 
-		DefaultMutableTreeNode top = new DefaultMutableTreeNode("Thesaurus Content");
+		top = new DefaultMutableTreeNode("Thesaurus Content");
 		java.util.Hashtable<String, HashSet<InvertedIndexItem>> table = i.getIndex();
 		if(table != null)
 		{
@@ -115,7 +160,11 @@ public class TBN {
 		JSeparator separator = new JSeparator();
 		separator.setOrientation(SwingConstants.VERTICAL);
 		frmJhuIrThesaurus.getContentPane().add(separator, BorderLayout.NORTH);
-		tree = new JTree(top);
+		
+		treeModel = new DefaultTreeModel(top);
+		treeModel.addTreeModelListener(new MyTreeModelListener());
+
+		tree = new JTree(treeModel);
 		tree.setBorder(new EtchedBorder(EtchedBorder.LOWERED, null, null));
 		tree.setVisibleRowCount(50);
 		
@@ -128,8 +177,20 @@ public class TBN {
 		
 		
 		panel1 = new JPanel();
-		JTextArea a = new JTextArea("Add/Edit/Delete Term");
+		FlowLayout flowLayout = (FlowLayout) panel1.getLayout();
+		flowLayout.setVgap(20);
+		flowLayout.setHgap(2);
+		flowLayout.setAlignment(FlowLayout.RIGHT);
+		JTextArea a = new JTextArea("Add/Edit/Delete Term:");
 		panel1.add(a);
+		
+		separator_1 = new JSeparator();
+		separator_1.setOrientation(SwingConstants.VERTICAL);
+		panel1.add(separator_1);
+		
+		textField = new JTextField();
+		panel1.add(textField);
+		textField.setColumns(10);
 		
 		
 		panel2 = new JPanel();
@@ -140,10 +201,28 @@ public class TBN {
 		panel2.setVisible(false);
 		
 		panel.add(panel1, "TERM");
+		
+		btnNewButton_1 = new JButton("Save");
+		btnNewButton_1.setHorizontalAlignment(SwingConstants.LEFT);
+		panel1.add(btnNewButton_1);
+		
+		btnNewButton = new JButton("Delete");
+		btnNewButton.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent arg0) {
+				i.removeConcept(new Concept(textField.getText()));
+				RenderTree();
+				
+			}
+		});
+		btnNewButton.setVerticalAlignment(SwingConstants.TOP);
+		btnNewButton.setHorizontalAlignment(SwingConstants.LEFT);
+		panel1.add(btnNewButton);
 		panel.add(panel2, "RELATIONSHIP");
 		
 		
 		tree.getSelectionModel().setSelectionMode(TreeSelectionModel.SINGLE_TREE_SELECTION);
+		
+		
 		tree.addTreeSelectionListener(new TreeSelectionListener() {
 		    public void valueChanged(TreeSelectionEvent e) {
 		        DefaultMutableTreeNode node = (DefaultMutableTreeNode)
@@ -161,6 +240,14 @@ public class TBN {
 		        {
 		        	CardLayout c1 = (CardLayout)panel.getLayout();
 		        	c1.show(panel, "TERM");
+		        	if(n.getUserObject().equals("Add New Term"))
+		        	{
+		        		textField.setText("");
+		        	}
+		        	else
+		        	{
+		        		textField.setText(n.getUserObject().toString());
+		        	}
 		        	
 		        }
 		        else if(depth == 2)
@@ -181,6 +268,36 @@ public class TBN {
 
 		
 		//frmJhuIrThesaurus.getContentPane().add(panel2, BorderLayout.CENTER);
+	}
+	
+	
+	class MyTreeModelListener implements TreeModelListener {
+	    public void treeNodesChanged(TreeModelEvent e) {
+	        DefaultMutableTreeNode node;
+	        node = (DefaultMutableTreeNode)
+	                 (e.getTreePath().getLastPathComponent());
+
+	        /*
+	         * If the event lists children, then the changed
+	         * node is the child of the node we have already
+	         * gotten.  Otherwise, the changed node and the
+	         * specified node are the same.
+	         */
+	        try {
+	            int index = e.getChildIndices()[0];
+	            node = (DefaultMutableTreeNode)
+	                   (node.getChildAt(index));
+	        } catch (NullPointerException exc) {}
+
+	        System.out.println("The user has finished editing the node.");
+	        System.out.println("New value: " + node.getUserObject());
+	    }
+	    public void treeNodesInserted(TreeModelEvent e) {
+	    }
+	    public void treeNodesRemoved(TreeModelEvent e) {
+	    }
+	    public void treeStructureChanged(TreeModelEvent e) {
+	    }
 	}
 	
 
