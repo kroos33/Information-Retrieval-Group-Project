@@ -124,6 +124,11 @@ public class InvertedIndex {
 		}
 	}
 	
+	public java.util.Hashtable<String, HashSet<InvertedIndexItem>> getIndex()
+	{
+		return this.table;
+	}
+	
 	public synchronized void persistIndex(String path) throws IOException
 	{
 		FileOutputStream f_out = new FileOutputStream(path);
