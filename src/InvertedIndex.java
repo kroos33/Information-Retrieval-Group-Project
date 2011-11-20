@@ -30,10 +30,11 @@ public class InvertedIndex {
 	/* Might be usefull?  Doubt it. */
 	public boolean isNewConcept(Concept c)
 	{
-		if(!table.containsKey(c.getConcept()))
-			return false;
-		else
+		//System.out.println("Looking for concept: " + c.getConcept().trim() + " " + table.containsKey(c.getConcept()));
+		if(!table.containsKey(c.getConcept().trim()))
 			return true;
+		else
+			return false;
 	}
 	
 	/* It is safe to call this if the concept already exists, we check first */

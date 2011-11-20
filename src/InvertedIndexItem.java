@@ -31,7 +31,7 @@ public class InvertedIndexItem implements Serializable {
 	}
 
 	public String toString() {
-		return "[" + c.getConcept() + ", " + type + "]";
+		return "[" + c.getConcept() + "," + type + "]";
 	}
 	
 	
