@@ -6,6 +6,7 @@ import java.awt.BorderLayout;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.io.IOException;
+import java.rmi.RemoteException;
 import java.util.Enumeration;
 import java.util.HashSet;
 import java.util.Hashtable;
@@ -50,7 +51,7 @@ import javax.swing.JComboBox;
 public class TBN {
 
 	public JFrame frmJhuIrThesaurus;
-	private InvertedIndex i;
+	public static InvertedIndex i;
 	private JTree tree;
 	private JComponent panel1;
 	private JComponent panel2;
@@ -70,6 +71,7 @@ public class TBN {
 	private JButton btnNewButton_2;
 	private JButton button;
 	private JComboBox comboBox_1;
+	public static Searcher rmi;
 
 
 	/**
@@ -82,6 +84,7 @@ public class TBN {
 					TBN window = new TBN();
 					
 					window.frmJhuIrThesaurus.setVisible(true);
+					
 					
 					
 				} catch (Exception e) {
@@ -140,9 +143,10 @@ public class TBN {
 		frmJhuIrThesaurus.setBounds(100, 100, 450, 300);
 		frmJhuIrThesaurus.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		
+		
 		i = new InvertedIndex();
 		try {
-			i.loadIndexFromFile("mytest");
+			i.loadIndexFromFile("backup");
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -150,6 +154,16 @@ public class TBN {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
+		
+		try {
+			rmi = new Searcher();
+		} catch (RemoteException e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+		}
+		
+		
+		
 
 		top = new DefaultMutableTreeNode("Thesaurus Content");
 		java.util.Hashtable<String, HashSet<InvertedIndexItem>> table = i.getIndex();
@@ -262,6 +276,12 @@ public class TBN {
 				panel1.setVisible(false);
 				panel2.setVisible(false);
 				RenderTree();
+				try {
+					i.persistIndex("backup");
+				} catch (IOException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
 			}
 		});
 		
@@ -276,6 +296,13 @@ public class TBN {
 				RenderTree();
 				panel1.setVisible(false);
 				panel2.setVisible(false);
+				textField.setText("");
+				try {
+					i.persistIndex("backup");
+				} catch (IOException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
 				
 			}
 		});
@@ -329,9 +356,24 @@ public class TBN {
 					{
 						r = Relationship.BROAD;
 					}
+					Concept c = new Concept(selected.getParent().toString());
 					Concept c2 = new Concept(comboBox.getSelectedItem().toString());
 					InvertedIndexItem rel = new InvertedIndexItem(c2, r);
-	        		i.addItem(new Concept(selected.getParent().toString()), rel);
+	        		i.addItem(c, rel);
+	        		
+	        		
+	        		/*Add the reciprocal*/
+	        		
+	        		if(r == Relationship.BROAD)
+	        		{
+	        			r = Relationship.NARROW;
+	        		}
+	        		else if(r == Relationship.NARROW)
+	        		{
+	        			r = Relationship.BROAD;
+	        		}
+	        		InvertedIndexItem recip = new InvertedIndexItem(c, r);
+	        		i.addItem(c2, recip);
 	        	}
 	        	else if(selected != null)
 	        	{
@@ -358,12 +400,33 @@ public class TBN {
 					}
 	        		InvertedIndexItem newItem = new InvertedIndexItem(c2, r);
 	        		ilist.add(newItem);
-	        		//ilist
 	        		
+	        		
+	        		/*Recip*/
+	        		
+	        		ilist = i.getConceptList(c2);
+	        		any = new InvertedIndexItem(c, Relationship.ANY);
+	        		ilist.remove(any);
+	        		if(r == Relationship.BROAD)
+	        		{
+	        			r = Relationship.NARROW;
+	        		}
+	        		else if(r == Relationship.NARROW)
+	        		{
+	        			r = Relationship.BROAD;
+	        		}
+	        		newItem = new InvertedIndexItem(c, r);
+	        		ilist.add(newItem);
 	        	}
 				RenderTree();
 				panel1.setVisible(false);
 				panel2.setVisible(false);
+				try {
+					i.persistIndex("backup");
+				} catch (IOException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
 	        	
 				
 			}
@@ -387,12 +450,25 @@ public class TBN {
 	        		Concept c2 = new Concept(comboBox.getSelectedItem().toString());
 	        		InvertedIndexItem any = new InvertedIndexItem(c2, Relationship.ANY);
 	        		ilist.remove(any);
+	        		
+	        		/*Remove reciprocal relationships */
+	        		ilist = i.getConceptList(c2);
+	        		any = new InvertedIndexItem(c, Relationship.ANY);
+	        		ilist.remove(any);
+	        		
 	        		System.out.println("Removed " + c2.getConcept());
 	        		any = null;
 	        	}
 				RenderTree();
 				panel1.setVisible(false);
 				panel2.setVisible(false);
+				try {
+					i.persistIndex("backup");
+				} catch (IOException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+				
 	        	
 				
 			}
@@ -461,13 +537,17 @@ public class TBN {
 		        	}
 		        	else
 		        	{
-		        		StringTokenizer st = new StringTokenizer(nodeInfo.toString(), "[]., ", false);
+		        		StringTokenizer st = new StringTokenizer(nodeInfo.toString(), "[].,", false);
 		        		comboBox.setSelectedItem(st.nextToken());
 		        		comboBox_1.setSelectedItem(st.nextToken());
 		        		textField_1.setText(n.getParent().toString());
 		        		st = null;
 		        	}
 		        	
+		        }
+		        else
+		        {
+		        	textField.setText("");
 		        }
 		        
 		 

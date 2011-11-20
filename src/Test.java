@@ -91,18 +91,6 @@ public class Test {
 		
 		
 		
-		Searcher searcher = new Searcher(i);
-	
-		/*Let's pretend we get a query like in the spec
-		 * 
-		 * So to satisfy Baseball[R] and series or october weneed to do the following:
-		 * 
-		 *  */
-		Concept c = new Concept("Baseball");
-		
-		/*This returns a set so you can just loop through it on the QP side */
-		Set<String> results = searcher.getConceptsByRelationship(c, Relationship.RELATED);
-		System.out.println("Baseball[R] should become (Baseball or " + results.toString().replaceAll(",", " or ") + ")");
 		
 		
 		
