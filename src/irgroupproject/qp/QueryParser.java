@@ -5,6 +5,7 @@ import irgroupproject.qp.token.Operator;
 import irgroupproject.qp.token.Term;
 import irgroupproject.qp.token.TokenList;
 
+import java.util.StringTokenizer;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -27,7 +28,7 @@ public class QueryParser {
 		{
 			throw new UnbalancedExpansionOperatorException("Expansion Operators Not Balanced");
 		}
-
+		trimedQuery = trimedQuery.replace("[]", "");
 		int lastEndIndex = 0;
 		TokenList tokens = new TokenList();
 
@@ -71,7 +72,7 @@ public class QueryParser {
 	}
 
 	private int findNextWordAndOp(String trimedQuery, int lastWordEndIndex,
-			TokenList tokens) throws InvalidTokenRelationshipException {
+			TokenList tokens) throws InvalidTokenRelationshipException, InvalidQueryException {
 		Matcher matcher = WORD_OP.matcher(trimedQuery);
 		boolean matchFound = matcher.find(lastWordEndIndex);
 		if (matchFound) {
@@ -79,6 +80,8 @@ public class QueryParser {
 			String word = matcher.group(1);
 			String related = matcher.group(2);
 			String op = matcher.group(3);
+			
+			System.out.println(word);
 
 
 			tokens.add(new Term(word, related));
