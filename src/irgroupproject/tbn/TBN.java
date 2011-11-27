@@ -52,7 +52,13 @@ import javax.swing.JScrollPane;
 import java.awt.Font;
 
 
-
+/**
+ * GUI class for our TBN.  Provides a Tree-View to view the entire contents of the index, including terms and relationships. 
+ * <BR><BR>
+ * Also provides necesssary capabilities to perform basic CRUD operations on both {@link Concept} items and {@link Relationship} objects.
+ * @author kurtisthompson
+ *
+ */
 public class TBN {
 
 	public JFrame frmJhuIrThesaurus;
@@ -109,6 +115,11 @@ public class TBN {
 		initialize();
 	}
 	
+	
+	/**
+	 * Refreshes the TreeView from our TBN InvertedIndex/Adjacency List representation.
+	 * @author kurtisthompson
+	 */
 	public void RenderTree()
 	{
 		top.removeAllChildren();

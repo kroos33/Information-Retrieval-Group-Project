@@ -1,45 +1,80 @@
+
 package irgroupproject.tbn;
 import java.io.Serializable;
 
-
-
-
-/* Just a wapper for a string.  Making it an object in case I need to add additional properties later */
+/**
+ * 
+ * TBN concept class. Simply wraps the string representation of the term.  
+ * <BR>
+ * <BR>
+ * Our {@link InvertedIndexItem} class stores both Concepts and a {@link Relationship} value.
+ * 
+ * 	@author kurtisthompson
+ *
+ */
 public class Concept implements Serializable {
 	
 	/**
+	 * serialiVersionUID - We need to define this for serialization to work everytime.
+	 * @author kurtisthompson
 	 * 
 	 */
 	private static final long serialVersionUID = 5204763425082126533L;
 	private String word;
 	
+	/**
+	 * Default Concept Constructor
+	 * @author kurtisthompson
+	 * @param None
+	 * @return None
+	 */
 	public Concept()
 	{
 		word = new String();
 	}
 	
+	/**
+	 * Alternate Concept Constructor
+	 * @author kurtisthompson
+	 * @param s - String representation of the term you want to generate a concept object for.
+	 */
 	public Concept(String s)
 	{
 		word = s;
 	}
 	
+	/**
+	 * Returns the string representation of the concept.
+	 * 
+	 * @author kurtisthompson
+	 * @param None
+	 * @return String representation of the concept.
+	 */
 	public String getConcept()
 	{
 		return word;
 	}
 	
+	
+	/**
+	 * Sets the current concept value to the given string value.
+	 * @author kurtisthompson
+	 * @param s Representation of the term.
+	 * @return None
+	 */
 	public void setConcept(String s)
 	{
 		word = s;
 	}
-
-	public int hashCode() {
-		final int PRIME = 31;
-		int result = 1;
-		result = PRIME * result + ((word == null) ? 0 : word.hashCode());
-		return result;
-	}
-
+	
+	
+	
+	/**
+	 * Concept equality function.  Will evaluate the equality of a given concept to another passed in.
+	 * @author kurtisthompson
+	 * @param obj Concept to compare against.
+	 * @return True if equal, False otherwise.
+	 */
 	public boolean equals(Object obj) {
 		if (this == obj)
 			return true;

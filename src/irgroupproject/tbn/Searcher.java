@@ -1,6 +1,5 @@
 package irgroupproject.tbn;
 
-
 import irgroupproject.shared.Constants;
 
 import java.io.IOException;
@@ -11,6 +10,15 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Set;
 
+/**
+ * RMI interface provided for clients to query our TBN<BR><BR>
+ * Allows remote objects to directly query our TBN for a given {@link Concept} and {@link Relationship} type.
+ * We have chosen this method to create a distributed system and also, provide the framework within which brokering and partitioning could be implemented by simply passing on the request once it hits the interface.
+ * <BR><BR>
+ * See {@link irgroupproject.shared.Constants} for Server port values.
+ * @author kurtisthompson
+ *
+ */
 public class Searcher extends java.rmi.server.UnicastRemoteObject implements SearcherInterface {
 	
 	private InvertedIndex index = null;
@@ -18,6 +26,12 @@ public class Searcher extends java.rmi.server.UnicastRemoteObject implements Sea
 	  String   thisAddress;
 	  Registry registry;    // rmi registry for lookup the remote objects.
 	
+	  
+	/**
+	 * Default constructor for our Remote Object.  Sets up our listener and also acquires a reference to our in memory TBN to allow queries on it.
+	 * @throws RemoteException - Thrown if the port is in use or for other types of communication failures.
+	 * @author kurtisthompson
+	 */
 	protected Searcher() throws RemoteException {
 		super();
 		index = TBN.i;
@@ -33,33 +47,17 @@ public class Searcher extends java.rmi.server.UnicastRemoteObject implements Sea
         catch(RemoteException e){
         throw e;
         }
-		
-		// TODO Auto-generated constructor stub
 	}
 
 	
-	
-	/* 
-	 * 
-	 * Keeping this around in case they are needed.  Probably won't be given the QP does the merges
-	 * 
-	public java.util.Set doUnion(java.util.Set document_list_a, java.util.Set  document_list_b)
-	{
-		Set union = new HashSet(document_list_a);
-		union.addAll(document_list_b);
-		return union;
-	}
-	
-	
-	public java.util.Set doIntersection(java.util.Set  document_list_a, java.util.Set  document_list_b)
-	{
-		Set intersection = new HashSet(document_list_a);
-		intersection.retainAll(document_list_b);
-		return intersection;
-	}
-	*/
-	
-	/* Return all concepts related to c, where the relationship type is r*/
+	/**
+	 * Actual search method.  Searches our TBN for expansion terms related to a {@link Concept} and having a {@link Relationship} type as specified.
+	 *
+	 *@return {@link java.util.Set} of matching expansion terms.
+	 *@author kurtisthompson
+	 *@param x {@link Concept} to find related terms for.
+	 *@param y {@link Relationship} type of relationships to search for.
+	 */
 	public java.util.Set<String> getConceptsByRelationship(Concept x, Relationship r)
 	{
 		if(index == null)
@@ -86,7 +84,6 @@ public class Searcher extends java.rmi.server.UnicastRemoteObject implements Sea
 				while(i.hasNext())
 				{
 					InvertedIndexItem item = i.next();
-					//System.out.println("Comparing " + item.getConcept().getConcept() + " and " + c.getConcept());
 					if(item.getRelationshipType() == r || r == Relationship.ANY)
 					{
 						similar.add(item.getConcept().getConcept());
