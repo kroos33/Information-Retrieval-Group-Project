@@ -18,6 +18,7 @@ public class QueryParser {
 			Pattern.CASE_INSENSITIVE);
 	private static Pattern OPERATOR = Pattern.compile("^(and|or|not|near)",
 			Pattern.CASE_INSENSITIVE);
+	private boolean foundFirst = false;
 
 	public TokenList parse(String query) throws QueryParserException {
 		
@@ -42,11 +43,12 @@ public class QueryParser {
 		}
 
 		lastEndIndex = findLastWord(trimedQuery, lastEndIndex, tokens);
+		foundFirst = false;
 		return tokens;
 	}
 	
 	
-	private boolean isBalanced(String query)
+	private boolean isBalanced(String query) throws UnbalancedExpansionOperatorException, InvalidQueryException
 	{
 		int countOpen =0;
 		int countClose = 0;
@@ -58,7 +60,61 @@ public class QueryParser {
 				  countClose +=1;
 			  }
 		}
-		return countOpen == countClose;
+		if(countOpen != countClose)
+			return false;
+		
+		/*
+		 * This is really ugly but there are a series of invalid queries the Regex won't find such as:
+		 * Jackie Robinson[R] F T - Missing operands.
+		 * 
+		 * This just adds a quick layer of syntax parsing so we can report an error correctly.
+		 * Basically, it assumes any series of words, such as Super Bowl that do not end with a ] are a single phrase and allows it.
+		 * If a term ends with a ], then the next character HAS to be an operator.
+		 * 
+		 */
+		StringTokenizer st = new StringTokenizer(query, " ");
+		boolean wasLastOperand = false;
+		boolean isFirst = false;
+		String lastToken = new String();
+		while(st.hasMoreElements())
+		{
+			String token = st.nextElement().toString().trim();
+			System.out.println(token);
+			if(!isFirst && !wasLastOperand)
+			{
+				if(token.equalsIgnoreCase("and") || token.equalsIgnoreCase("or") || token.equalsIgnoreCase("near"))
+				{
+					throw new InvalidQueryException(0);
+				}
+				isFirst = true;
+				wasLastOperand = false;
+			}
+			else
+			{
+				if(!wasLastOperand)
+				{
+					if(!token.toLowerCase().equalsIgnoreCase("and") && !token.toLowerCase().equalsIgnoreCase("or") && !token.toLowerCase().equalsIgnoreCase("near") && lastToken.endsWith("]"))
+					{
+						throw new UnbalancedExpansionOperatorException("Unsupported or Missing Operator in Query");
+					}
+					if(lastToken.endsWith("]"))	
+						wasLastOperand = true;
+				}
+				else
+				{
+					if(token.equalsIgnoreCase("and") || token.equalsIgnoreCase("or") || token.equalsIgnoreCase("near"))
+					{
+						throw new UnbalancedExpansionOperatorException("Operand Following Operand.  Invalid Query Syntax.");
+					}
+					wasLastOperand = false;
+				}
+			}
+			lastToken = token;
+		}
+		
+		return true;
+		
+		
 		
 	}
 	
@@ -78,6 +134,7 @@ public class QueryParser {
 		if (matchFound) {
 			lastWordEndIndex = matcher.end(0);
 			String word = matcher.group(1);
+			
 			String related = matcher.group(2);
 			String op = matcher.group(3);
 			
@@ -86,6 +143,7 @@ public class QueryParser {
 
 			tokens.add(new Term(word, related));
 			tokens.add(new Operator(op));
+			foundFirst = true;
 		}
 		return lastWordEndIndex;
 	}
@@ -99,13 +157,6 @@ public class QueryParser {
 			lastWordEndIndex = matcher.end(0);
 			String lastWord = matcher.group(1);
 			String related = matcher.group(2);
-			
-			/*if(trimedQuery.indexOf("[") > -1 && trimedQuery.indexOf("]") < 0)
-			{
-				throw new InvalidQueryException(lastWordEndIndex);
-			}
-			*/
-
 			tokens.add(new Term(lastWord, related));
 		} else {
 			throw new InvalidQueryException(lastWordEndIndex);
