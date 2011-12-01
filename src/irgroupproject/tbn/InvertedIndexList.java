@@ -6,7 +6,7 @@ import java.util.Iterator;
  * InvertedIndexList implementation.
  * <BR><BR>
  * This class is a customized version of a normal Java HashSet that stores {@link InvertedIndexItem} objects.  Our customizations incldue the ability to use the .contains method regardless of {@link Relationship} type and then to simply replace {@link Concept} items with new ones.
- * @author kurtisthompson
+ * @author Kurtis Thompson
  *
  */
 public class InvertedIndexList extends java.util.HashSet<InvertedIndexItem> {
@@ -20,7 +20,7 @@ public class InvertedIndexList extends java.util.HashSet<InvertedIndexItem> {
 
 	/**
 	 * Allows users to use the .contains method with any {@link Relationship} type.
-	 * @author kurtisthompson
+	 * @author Kurtis Thompson
 	 * @param arg0 {@link InvertedIndexItem} object to search our list for.
 	 * @returns True if found, False otherwise.
 	 * @Override
@@ -47,7 +47,7 @@ public class InvertedIndexList extends java.util.HashSet<InvertedIndexItem> {
 
 	/**
 	 * Allows users to use the .remove method with any {@link Relationship} type.
-	 * @author kurtisthompson
+	 * @author Kurtis Thompson
 	 * @param arg0 {@link InvertedIndexItem} object to search our list for and then remove.
 	 * @returns True if found and removed, False otherwise.
 	 * @Override
@@ -79,7 +79,7 @@ public class InvertedIndexList extends java.util.HashSet<InvertedIndexItem> {
 	 * Replaces all {@link InvertedIndexItem} objects that contain a given {@link Concept} with a new {@link Concept} item.
 	 * @param c1 {@link Concept} that we should replace.
 	 * @param c2 {@link Concept} that we should replace with.
-	 * @author kurtisthompson
+	 * @author Kurtis Thompson
 	 */
 	public void replaceConcept(Concept c1, Concept c2)
 	{

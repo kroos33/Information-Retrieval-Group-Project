@@ -23,6 +23,13 @@ import javax.swing.text.SimpleAttributeSet;
 import javax.swing.text.StyleConstants;
 import javax.swing.text.StyledDocument;
 
+/**
+ * Graphical User Interface provided for the QueryParser.<BR><BR>
+ * Allows a user to enter a query, expand it, review/modify it and then submit it to Google to get results.
+ * @author Ben Tse
+ * @author kurtisthompson
+ *
+ */
 public class QueryParserGui extends JPanel implements ActionListener {
 
 	private static final long serialVersionUID = 1L;

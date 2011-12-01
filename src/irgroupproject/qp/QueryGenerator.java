@@ -8,13 +8,31 @@ import irgroupproject.qp.token.Term;
 import irgroupproject.qp.token.Token;
 import irgroupproject.qp.token.TokenList;
 
+/**
+ * Generates the search query from a set of tokens and operators.
+ * <BR><BR>
+ * Uses the {@link TokenExpander} class to parse the individual tokens and the {@link irgroupproject.qp.client.RmiClient} to connect to the TBN.
+ * 
+ * @author Ben Tse
+ *
+ */
 public class QueryGenerator {
 	private TokenExpander expander;
 
+	/**
+	 * Default Constructor
+	 * @param expander {@link TokenExpander} instance to use to parse our query tokens.
+	 */
 	public QueryGenerator(TokenExpander expander) {
 		this.expander = expander;
 	}
 
+	/**
+	 * Query generator.  Takes a list of parsed Tokens, expands them, gets the expansion results and re-writes the query.
+	 * @param tokens List of tokens input by the user, unexpanded.
+	 * @return TBN expanded query to send to Google.
+	 * @throws QueryParserException
+	 */
 	public String generate(TokenList tokens) throws QueryParserException {
 		StringBuffer query = new StringBuffer();
 		for (Iterator<Token> iterator = tokens.iterator(); iterator.hasNext();) {
@@ -37,6 +55,12 @@ public class QueryGenerator {
 		return query.toString();
 	}
 
+	
+	/**
+	 * Expands the query using our TBN results.
+	 * @param concepts - List of expansions.
+	 * @return New, Expanded query.
+	 */
 	private String getExpandedConceptsQuery(Set<String> concepts) {
 		StringBuffer query = new StringBuffer();
 		query.append("(");

@@ -8,7 +8,7 @@ import java.io.Serializable;
  * 
  * Relationship types will be of the set of types defined in {@link Relationship}. We store these items in our InvertedIndexList to represent our graph in the style of adjacency lists.
  * 
- * @author kurtisthompson
+ * @author Kurtis Thompson
  */
 
 
@@ -25,7 +25,7 @@ public class InvertedIndexItem implements Serializable {
 	 * @param con {@link Concept} that is related to our current item.
 	 * @param relationship Relationship type provided by {@link Relationship}
 	 * 
-	 * @author kurtisthompson
+	 * @author Kurtis Thompson
 	 */
 	public InvertedIndexItem(Concept con, Relationship relationship)
 	{

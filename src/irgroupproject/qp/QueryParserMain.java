@@ -3,6 +3,11 @@ package irgroupproject.qp;
 import irgroupproject.qp.client.RmiClient;
 import irgroupproject.qp.token.TokenList;
 
+/**
+ * Simple class for test-cases.  Should not be invoked.
+ * @author Ben Tse
+ *
+ */
 public class QueryParserMain {
 
 	public static void main(String[] args) throws Exception {

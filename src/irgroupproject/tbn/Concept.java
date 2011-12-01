@@ -9,14 +9,14 @@ import java.io.Serializable;
  * <BR>
  * Our {@link InvertedIndexItem} class stores both Concepts and a {@link Relationship} value.
  * 
- * 	@author kurtisthompson
+ * 	@author Kurtis Thompson
  *
  */
 public class Concept implements Serializable {
 	
 	/**
 	 * serialiVersionUID - We need to define this for serialization to work everytime.
-	 * @author kurtisthompson
+	 * @author Kurtis Thompson
 	 * 
 	 */
 	private static final long serialVersionUID = 5204763425082126533L;
@@ -24,7 +24,7 @@ public class Concept implements Serializable {
 	
 	/**
 	 * Default Concept Constructor
-	 * @author kurtisthompson
+	 * @author Kurtis Thompson
 	 * @param None
 	 * @return None
 	 */
@@ -35,7 +35,7 @@ public class Concept implements Serializable {
 	
 	/**
 	 * Alternate Concept Constructor
-	 * @author kurtisthompson
+	 * @author Kurtis Thompson
 	 * @param s - String representation of the term you want to generate a concept object for.
 	 */
 	public Concept(String s)
@@ -46,7 +46,7 @@ public class Concept implements Serializable {
 	/**
 	 * Returns the string representation of the concept.
 	 * 
-	 * @author kurtisthompson
+	 * @author Kurtis Thompson
 	 * @param None
 	 * @return String representation of the concept.
 	 */
@@ -58,7 +58,7 @@ public class Concept implements Serializable {
 	
 	/**
 	 * Sets the current concept value to the given string value.
-	 * @author kurtisthompson
+	 * @author Kurtis Thompson
 	 * @param s Representation of the term.
 	 * @return None
 	 */
@@ -71,7 +71,7 @@ public class Concept implements Serializable {
 	
 	/**
 	 * Concept equality function.  Will evaluate the equality of a given concept to another passed in.
-	 * @author kurtisthompson
+	 * @author Kurtis Thompson
 	 * @param obj Concept to compare against.
 	 * @return True if equal, False otherwise.
 	 */

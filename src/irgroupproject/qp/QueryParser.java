@@ -9,6 +9,14 @@ import java.util.StringTokenizer;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+/**
+ * Main Query parsing class.  Uses a two pass parsing system. The first is designed to reject a query based on syntax violations.
+ * <BR><BR>
+ * The second pass is designed to break the query into it's various parts using a series of Regular Expressions and expand them as needed.
+ * 
+ * @author Ben Tse
+ *
+ */
 public class QueryParser {
 
 	private static Pattern LAST_WORD = Pattern.compile(
@@ -20,6 +28,14 @@ public class QueryParser {
 			Pattern.CASE_INSENSITIVE);
 	private boolean foundFirst = false;
 
+	/**
+	 * Main query parsing method.  Takes a given query, checks to make sure it passes our first pass through syntax parsing and then applies our Regular Expressions to break the query into individual parts.
+	 * 
+	 * @author Ben Tse
+	 * @param query User supplied query.
+	 * @throws QueryParserException Indicates that something, syntactically is wrong with the query.
+	 *
+	 */
 	public TokenList parse(String query) throws QueryParserException {
 		
 		
@@ -48,6 +64,14 @@ public class QueryParser {
 	}
 	
 	
+	/**
+	 * First pass parser.  Quickly parses the query looking for unbalanced operators or invalid syntax.
+	 * @author kurtisthompson
+	 * @param query User supplied query.
+	 * @return True if query is valid, False otherwise.
+	 * @throws UnbalancedExpansionOperatorException Thrown if the expansion operators are not properly balanced.
+	 * @throws InvalidQueryException Thrown for all other error types (syntax, invalid operators, etc).
+	 */
 	private boolean isBalanced(String query) throws UnbalancedExpansionOperatorException, InvalidQueryException
 	{
 		int countOpen =0;
@@ -82,7 +106,7 @@ public class QueryParser {
 			System.out.println(token);
 			if(!isFirst && !wasLastOperand)
 			{
-				if(token.equalsIgnoreCase("and") || token.equalsIgnoreCase("or") || token.equalsIgnoreCase("near"))
+				if(token.equalsIgnoreCase("and") || token.equalsIgnoreCase("or") || token.equalsIgnoreCase("near") || token.equalsIgnoreCase("not"))
 				{
 					throw new InvalidQueryException(0);
 				}
@@ -93,7 +117,7 @@ public class QueryParser {
 			{
 				if(!wasLastOperand)
 				{
-					if(!token.toLowerCase().equalsIgnoreCase("and") && !token.toLowerCase().equalsIgnoreCase("or") && !token.toLowerCase().equalsIgnoreCase("near") && lastToken.endsWith("]"))
+					if(!token.toLowerCase().equalsIgnoreCase("and") && !token.toLowerCase().equalsIgnoreCase("or") && !token.toLowerCase().equalsIgnoreCase("near") && !token.toLowerCase().equalsIgnoreCase("not") && lastToken.endsWith("]"))
 					{
 						throw new UnbalancedExpansionOperatorException("Unsupported or Missing Operator in Query");
 					}
@@ -102,7 +126,7 @@ public class QueryParser {
 				}
 				else
 				{
-					if(token.equalsIgnoreCase("and") || token.equalsIgnoreCase("or") || token.equalsIgnoreCase("near"))
+					if(token.equalsIgnoreCase("and") || token.equalsIgnoreCase("or") || token.equalsIgnoreCase("near") || token.equalsIgnoreCase("not"))
 					{
 						throw new UnbalancedExpansionOperatorException("Operand Following Operand.  Invalid Query Syntax.");
 					}
@@ -112,12 +136,21 @@ public class QueryParser {
 			lastToken = token;
 		}
 		
+		/*Allow the query to end with an operator since it doesn't break anything */
+		
 		return true;
 		
 		
 		
 	}
 	
+	/**
+	 * Checks to ensure our query does not start with one of our boolean operators.  To do so, would be invalid.
+	 * 
+	 * @author Ben Tse
+	 * @param query User supplied query.
+	 * @throws InvalidQueryException Thrown if the query begins with a boolean operator.
+	 */
 	private void checkQueryNotStartingWithOps(String query)
 			throws InvalidQueryException {
 		Matcher matcher = OPERATOR.matcher(query);
@@ -127,6 +160,16 @@ public class QueryParser {
 		}
 	}
 
+	/**
+	 * Parses the next word (and possibly expansion operator) in the user supplied query, begining at lastWordIndex.
+	 * @param trimedQuery User supplied query with whitespace removed.
+	 * @param lastWordEndIndex Current position to begin parsing from within the query. 
+	 * @param tokens Current list of located {@link irgroupproject.qp.token.Token} objects.
+	 * @return Updated position within the query.
+	 * @throws InvalidTokenRelationshipException
+	 * @throws InvalidQueryException
+	 * @author Ben Tse
+	 */
 	private int findNextWordAndOp(String trimedQuery, int lastWordEndIndex,
 			TokenList tokens) throws InvalidTokenRelationshipException, InvalidQueryException {
 		Matcher matcher = WORD_OP.matcher(trimedQuery);
@@ -148,6 +191,18 @@ public class QueryParser {
 		return lastWordEndIndex;
 	}
 
+	/**
+	 * Parses the <b>final</b> word (and possibly expansion operator) in the user supplied query.
+	 * <BR><BR>
+	 * We handle this as a special case to account for single term queries.
+	 * @param trimedQuery User supplied query with whitespace removed.
+	 * @param lastWordEndIndex Current position to begin parsing from within the query. 
+	 * @param tokens Current list of located {@link irgroupproject.qp.token.Token} objects.
+	 * @return Updated position within the query.
+	 * @throws InvalidTokenRelationshipException
+	 * @throws InvalidQueryException
+	 * @author Ben Tse
+	 */
 	private int findLastWord(String trimedQuery, int lastWordEndIndex,
 			TokenList tokens) throws InvalidQueryException,
 			InvalidTokenRelationshipException {

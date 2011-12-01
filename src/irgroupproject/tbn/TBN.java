@@ -56,7 +56,7 @@ import java.awt.Font;
  * GUI class for our TBN.  Provides a Tree-View to view the entire contents of the index, including terms and relationships. 
  * <BR><BR>
  * Also provides necesssary capabilities to perform basic CRUD operations on both {@link Concept} items and {@link Relationship} objects.
- * @author kurtisthompson
+ * @author Kurtis Thompson
  *
  */
 public class TBN {
@@ -84,17 +84,21 @@ public class TBN {
 	private JComboBox comboBox_1;
 	public static Searcher rmi;
 	private JScrollPane scroller;
+	public static int expansionLevel = 1;
 
 
 	/**
 	 * Launch the application.
+	 * Setting the system properly tbn.ExpansionLevel allows user customization of the depth of term expansion.
 	 */
 	public static void main(String[] args) {
 		EventQueue.invokeLater(new Runnable() {
 			public void run() {
 				try {
+					
+					
 					TBN window = new TBN();
-				
+					
 					
 					window.frmJhuIrThesaurus.setVisible(true);
 					window.frmJhuIrThesaurus.setBounds(100, 200, 500, 500);
@@ -118,7 +122,7 @@ public class TBN {
 	
 	/**
 	 * Refreshes the TreeView from our TBN InvertedIndex/Adjacency List representation.
-	 * @author kurtisthompson
+	 * @author Kurtis Thompson
 	 */
 	public void RenderTree()
 	{
@@ -179,6 +183,22 @@ public class TBN {
 		
 		try {
 			rmi = new Searcher();
+			String eLevel = System.getProperty("tbn.expansionLevel");
+			if(eLevel != null && eLevel.equalsIgnoreCase("all"))
+			{
+				System.out.println("Set Level to Max");
+				rmi.expansionLevel = 100;
+			}
+			else
+			{
+				try{
+					rmi.expansionLevel = Integer.parseInt(eLevel.trim());
+				}catch(Exception ex)
+				{
+					System.out.println("Parsing expansion Level failed.  Defaulting to 1.");
+					rmi.expansionLevel = 1;
+				}
+			}
 		} catch (RemoteException e1) {
 			// TODO Auto-generated catch block
 			e1.printStackTrace();

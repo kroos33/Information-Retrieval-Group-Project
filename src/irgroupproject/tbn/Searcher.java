@@ -16,12 +16,13 @@ import java.util.Set;
  * We have chosen this method to create a distributed system and also, provide the framework within which brokering and partitioning could be implemented by simply passing on the request once it hits the interface.
  * <BR><BR>
  * See {@link irgroupproject.shared.Constants} for Server port values.
- * @author kurtisthompson
+ * @author @author Kurtis Thompson
  *
  */
 public class Searcher extends java.rmi.server.UnicastRemoteObject implements SearcherInterface {
 	
 	private InvertedIndex index = null;
+	public int expansionLevel = 1;
 	  int      thisPort;
 	  String   thisAddress;
 	  Registry registry;    // rmi registry for lookup the remote objects.
@@ -30,12 +31,13 @@ public class Searcher extends java.rmi.server.UnicastRemoteObject implements Sea
 	/**
 	 * Default constructor for our Remote Object.  Sets up our listener and also acquires a reference to our in memory TBN to allow queries on it.
 	 * @throws RemoteException - Thrown if the port is in use or for other types of communication failures.
-	 * @author kurtisthompson
+	 * @author Kurtis Thompson
 	 */
 	protected Searcher() throws RemoteException {
 		super();
 		index = TBN.i;
 		
+		System.out.println("Expansion Level: " + this.expansionLevel);
 		thisAddress = Constants.SERVER_ADDRESS;
         thisPort=Constants.SERVER_PORT;  // this port(registryÕs port)
         System.out.println("this address="+thisAddress+",port="+thisPort);
@@ -54,7 +56,7 @@ public class Searcher extends java.rmi.server.UnicastRemoteObject implements Sea
 	 * Actual search method.  Searches our TBN for expansion terms related to a {@link Concept} and having a {@link Relationship} type as specified.
 	 *
 	 *@return {@link java.util.Set} of matching expansion terms.
-	 *@author kurtisthompson
+	 *@author Kurtis Thompson
 	 *@param x {@link Concept} to find related terms for.
 	 *@param y {@link Relationship} type of relationships to search for.
 	 */
@@ -87,11 +89,63 @@ public class Searcher extends java.rmi.server.UnicastRemoteObject implements Sea
 					if(item.getRelationshipType() == r || r == Relationship.ANY)
 					{
 						similar.add(item.getConcept().getConcept());
+						if(expansionLevel > 1)
+						{
+							doRecursiveSearch(x, r, similar, item.getConcept(), r, 2);
+						}
 					}
 				}
 			}
 		}
 		return similar;
+	}
+	
+	/**
+	 * To prove our system was capable of handling both single level expansions as well as multi-level expansions, we added this recursive walk to expand to a user supplied depth.
+	 * <BRR><BR>
+	 * Depth can be configured by passing -Dtbn.expansionLevel=x to the JVM when starting the TBN.
+	 * @param originalConcept Original concept that the user wanted to expand.
+	 * @param originalRelationship Relationship (ie which way to walk our graph)
+	 * @param currentList Currently located expansion terms.
+	 * @param newConcept Current concept we are processing
+	 * @param newRelationship Current relationship we are processing
+	 * @param level - Current depth in our tree.
+	 * 
+	 * @author Kurtis Thompson
+	 */
+	private void doRecursiveSearch(Concept originalConcept, Relationship originalRelationship, java.util.Set<String> currentList, Concept newConcept, Relationship newRelationship, int level)
+	{
+		System.out.println("Expanding: " + newConcept.getConcept().toString());
+		if(level > this.expansionLevel)
+			return;
+		else
+		{
+			if(!originalConcept.equals(newConcept))
+			{
+				InvertedIndexList docs = null;
+				if(index != null)
+				{
+					docs = index.getConceptList(newConcept);
+					if(docs != null)
+					{
+						Iterator<InvertedIndexItem> i = docs.iterator();
+						while(i.hasNext())
+						{
+							InvertedIndexItem item = i.next();
+							if(item.getRelationshipType() == newRelationship || newRelationship == Relationship.ANY)
+							{
+								if(!currentList.contains(item.getConcept().getConcept().toString()))
+								{
+									currentList.add(item.getConcept().getConcept());
+									doRecursiveSearch(originalConcept, originalRelationship, currentList, item.getConcept(), newRelationship, level + 1);
+								}
+							}
+						}
+					}
+				}
+				return;
+			}
+		}
 	}
 	
 

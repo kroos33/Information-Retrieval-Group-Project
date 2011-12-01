@@ -2,6 +2,12 @@ package irgroupproject.qp.client;
 
 import irgroupproject.qp.QueryParserException;
 
+/**
+ * Custom exception for signifying when RMI related communication errors have prevented the execution of term expansion.
+ * 
+ * @author Ben Tse
+ *
+ */
 public class RmiClientException extends QueryParserException {
 
 	private static final long serialVersionUID = 1L;

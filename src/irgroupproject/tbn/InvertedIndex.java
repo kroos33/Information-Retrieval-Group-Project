@@ -28,14 +28,14 @@ import java.util.Iterator;
  * <BR><BR>
  * Designed to support multi-threaded access.
  * 
- * 	@author kurtisthompson
+ * 	@author Kurtis Thompson
  *
  */
 public class InvertedIndex {
 
 	/**
 	 * serialiVersionUID - We need to define this for serialization to work every time.
-	 * @author kurtisthompson
+	 * @author Kurtis Thompson
 	 * 
 	 */
 	private static final long serialVersionUID = 1L;
@@ -52,7 +52,7 @@ public class InvertedIndex {
 	 * Default Constructor
 	 * <BR><BR>
 	 * Creates a new empty TBN index.
-	 * @author kurtisthompson
+	 * @author Kurtis Thompson
 	 * @param 
 	 */
 	public InvertedIndex()
